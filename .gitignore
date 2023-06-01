@@ -1,0 +1,9 @@
+
+# Devenv
+.devenv*
+devenv.local.nix
+
+.direnv
+
+node_modules
+./public
