@@ -1,7 +1,4 @@
-#! b/usr/bin/env awk
-
 /^\/.*.php$/ { 
-    filename = $0; 
     depCnt = 0
     namespace = ""
 }
@@ -10,7 +7,7 @@
 
 /^namespace/ { sub(/;$/, ""); namespace = $2 }
 
-/^final class/ { classname = $3; print $3 }
+/^final class/ { classname = $3;}
 /^abstract class/ { classname = $3 }
 /^class/ { classname = $2 }
 /^interface/ { classname = $2 }
@@ -32,10 +29,6 @@ length(classname) > 0 {
 }
 
 END { 
-    if (length(filename) > 0) {
-        print filename; 
-    }
-
     print "known units: " unitCnt > "/dev/stderr";
     for (i = 0; i < unitCnt; i++) {
         print units[i] > "/dev/stderr";
