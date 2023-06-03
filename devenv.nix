@@ -3,7 +3,7 @@
   env.GREET = "devenv";
 
   # https://devenv.sh/packages/
-  packages = [pkgs.git];
+  packages = [pkgs.git pkgs.nodePackages_latest.typescript-language-server];
 
   # https://devenv.sh/scripts/
   scripts.hello.exec = "echo hello from $GREET";
