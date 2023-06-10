@@ -1,7 +1,9 @@
 import Graph from "graphology";
 import Sigma from "sigma";
+import { Coordinates, EdgeDisplayData, NodeDisplayData } from "sigma/types"; 
 import forceAtlas2 from 'graphology-layout-forceatlas2';
 import FA2Layout from 'graphology-layout-forceatlas2/worker';
+import toSimple from 'graphology-operators/to-simple';
 import * as colorMap from './colorMap';
 
 
@@ -35,7 +37,7 @@ const unitPackages= new Map<string, string>();
 const edges = data.split("\n").
 reduce((edges: [string, string][], line) => {
     const parts = line.split(",").map(p => p.trim());
-    if (parts.length == 0) {
+    if (parts.length < 2) {
         return edges;
     }
 
@@ -44,8 +46,10 @@ reduce((edges: [string, string][], line) => {
         return edges;
     }
 
-    unitPackages.set(self, parts[1]);
-    packagesList.add(parts[1]);
+    if (parts[1] != "") {
+        unitPackages.set(self, parts[1]);
+        packagesList.add(parts[1]);
+    }
 
     for (const vertex of parts.slice(2)) {
         if (!units.has(vertex) || vertex == self || vertex == "") {
@@ -68,52 +72,19 @@ for (let pkg of packagesList) {
     packageColors.set(pkg, colors.next().value);
 }
 
-const uiLegend = document.getElementById("legend") as HTMLElement;
 
+// Type and declare internal state:
+interface State {
+  pinnend: boolean;
+  hoveredNode?: string;
+  selectedPackage?: string;
 
-const div = document.createElement("button");
-div.style.backgroundColor = "gray";
-div.style.color = "white";
-div.style.padding = "0.5em";
-div.style.margin = "0.5em";
-div.style.borderRadius = "0.5em";
-div.style.width = "100%";
-div.innerText = "reset";
-div.onclick = () => {
-    graph.forEachNode((node) => {
-        const pkg = unitPackages.get(node)??'';
-        const color = packageColors.get(pkg) as string;
-        graph.setNodeAttribute(node, "color", color);
-    });
-};
-uiLegend.appendChild(div);
-
-
-const select = (pkg: string) => {
-    const activeColor = packageColors.get(pkg) as string;
-    const inactiveColor = "gray";
-    graph.forEachNode((node) => {
-        if (unitPackages.get(node) == pkg) {
-            graph.setNodeAttribute(node, "color", activeColor);
-        } else {
-            graph.setNodeAttribute(node, "color", inactiveColor);
-        }
-    });
+  // State derived from hovered node:
+  hoveredNeighbors?: Set<string>;
 }
+const state: State = {pinnend: false};
 
-for (let [pkg, color] of packageColors.entries()) {
-    const div = document.createElement("button");
-    div.style.backgroundColor = color;
-    div.style.color = "white";
-    div.style.padding = "0.5em";
-    div.style.margin = "0.5em";
-    div.style.borderRadius = "0.5em";
-    div.style.width = "100%";
-    console.log(pkg);
-    div.innerText = pkg;
-    div.onclick = () => select(pkg);
-    uiLegend.appendChild(div);
-}
+
 
 
 const graph = new Graph();
@@ -145,16 +116,121 @@ setTimeout(() => {
 layout.stop();
 }, 10000);
 
+
 const container = document.getElementById("sigma-container") as HTMLElement;
 const renderer = new Sigma(graph, container);
 
+
 const output = document.getElementById("output") as HTMLTextAreaElement;
-console.log(output);
 renderer.on("clickNode", ({ node }) => {
+    state.pinnend = true;
+    setHoveredNode(node);
     output.value = "";
     graph.neighbors(node).forEach((n => {
-        graph.setNodeAttribute(n, "color", "red");
         output.value += n + "\n";
     }));
 });
 
+function setHoveredNode(node?: string) {
+  if (node) {
+    state.hoveredNode = node;
+    state.hoveredNeighbors = new Set(graph.neighbors(node));
+  } else {
+    state.hoveredNode = undefined;
+    state.hoveredNeighbors = undefined;
+  }
+
+  // Refresh rendering:
+  renderer.refresh();
+}
+
+// Bind graph interactions:
+renderer.on("enterNode", ({ node }) => {
+  //setHoveredNode(node);
+});
+renderer.on("leaveNode", () => {
+  //setHoveredNode(undefined);
+});
+renderer.on("clickStage", () => {
+  state.pinnend = false;
+  setHoveredNode(undefined);
+});
+
+
+const uiLegend = document.getElementById("legend") as HTMLElement;
+
+
+const div = document.createElement("button");
+div.style.backgroundColor = "gray";
+div.style.color = "white";
+div.style.padding = "0.5em";
+div.style.margin = "0.5em";
+div.style.borderRadius = "0.5em";
+div.style.width = "100%";
+div.innerText = "reset";
+div.onclick = () => {
+    state.selectedPackage = undefined;
+  renderer.refresh();
+};
+uiLegend.appendChild(div);
+
+
+const select = (pkg: string) => {
+    state.selectedPackage = pkg;
+  renderer.refresh();
+}
+
+for (let [pkg, color] of packageColors.entries()) {
+    const div = document.createElement("button");
+    div.style.backgroundColor = color;
+    div.style.color = "white";
+    div.style.padding = "0.5em";
+    div.style.margin = "0.5em";
+    div.style.borderRadius = "0.5em";
+    div.style.width = "100%";
+    console.log("what: ", pkg);
+    div.innerText = pkg;
+    div.onclick = () => select(pkg);
+    uiLegend.appendChild(div);
+}
+
+// Render nodes accordingly to the internal state:
+// If there is a hovered node, all non-neighbor nodes are greyed
+renderer.setSetting("nodeReducer", (node, data) => {
+  const res: Partial<NodeDisplayData> = { ...data };
+
+  if (state.hoveredNeighbors && !state.hoveredNeighbors.has(node) && state.hoveredNode !== node) {
+    res.label = "";
+    res.color = "#f6f6f6";
+  }else if(!!state.selectedPackage) {
+      const pkg = unitPackages.get(node)??'';
+      if (pkg != state.selectedPackage) {
+          res.label = "";
+          res.color = "#f6f6f6";
+      } else {
+          const color = packageColors.get(pkg) as string;
+          res.color = color;
+      }
+  }else {
+    const pkg = unitPackages.get(node)??'';
+    const color = packageColors.get(pkg) as string;
+    res.color = color;
+  }
+
+
+  return res;
+});
+
+// Render edges accordingly to the internal state:
+// 1. If a node is hovered, the edge is hidden if it is not connected to the
+//    node
+renderer.setSetting("edgeReducer", (edge, data) => {
+  const res: Partial<EdgeDisplayData> = { ...data };
+
+  if (state.hoveredNode && !graph.hasExtremity(edge, state.hoveredNode)) {
+    res.hidden = true;
+  }
+
+
+  return res;
+});
