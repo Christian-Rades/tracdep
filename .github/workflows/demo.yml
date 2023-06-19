@@ -21,7 +21,7 @@ jobs:
       
       - run: cp index.html public
       
-      - uses: EndBug/add-and-commit@v9.
+      - uses: EndBug/add-and-commit@v9.1.3
         with:
           add: 'public'
           new_branch: demo
