@@ -24,5 +24,4 @@ jobs:
       - uses: EndBug/add-and-commit@v9.1.3
         with:
           add: 'public'
-          new_branch: demo
-          push: git push origin ${new_branch input} --set-upstream --force
+          push: git push origin demo --set-upstream --force
