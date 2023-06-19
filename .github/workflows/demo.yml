@@ -25,4 +25,3 @@ jobs:
         with:
           add: 'public'
           new_branch: demo
-          push: git push origin demo --set-upstream --force
