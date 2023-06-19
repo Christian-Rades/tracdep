@@ -17,12 +17,31 @@
         padding: 0;
         overflow: hidden;
       }
+
+      #clustersLayer {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+      }
+      .clusterLabel {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        font-family: sans-serif;
+        font-variant: small-caps;
+        font-weight: 400;
+        font-size: 1.8rem;
+        text-shadow: 2px 2px 1px white, -2px -2px 1px white, -2px 2px 1px white, 2px -2px 1px white;
+      }
     </style>
     <div style="display: grid; height: 100%; grid-template-columns: 70% 1fr;">
         <div id="sigma-container"></div>
-        <div>
-            <h1>Output</h1>
+        <div style="display: grid; grid-template-rows: 25% 1fr 3fr;">
             <div id="legend" style="display: grid; grid-template-columns: 1fr 1fr;">
+            </div>
+            <div>
+                <textarea id="layers" style="width: 100%; height: 85%;">
+                </textarea>
+                <button id="apply">Apply</button>
             </div>
             <textarea id="output" style="width: 100%; height: 100%;">
             </textarea>

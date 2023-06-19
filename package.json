@@ -12,6 +12,8 @@
     "esbuild": "0.18.4",
     "graphology": "^0.23.0",
     "graphology-layout-forceatlas2": "^0.10.1",
+    "graphology-operators": "^1.6.0",
+    "graphology-types": "^0.24.7",
     "sigma": "latest"
   },
   "devDependencies": {
