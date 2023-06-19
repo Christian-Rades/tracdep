@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: demo
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.6.0
@@ -22,3 +20,9 @@ jobs:
       - run: ./clone.sh
       
       - run: cp index.html public
+      
+      - uses: EndBug/add-and-commit@v9.
+        with:
+          add: 'public'
+          new_branch: demo
+          push: git push origin ${new_branch input} --set-upstream --force
