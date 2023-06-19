@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: add-demo
+          ref: demo
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.6.0
@@ -19,6 +19,6 @@ jobs:
       
       - run: ./node_modules/.bin/esbuild index.ts --bundle --outfile=public/build/bundle.js
       
-      - run: ./build/clone.sh
+      - run: ./clone.sh
       
       - run: cp index.html public
