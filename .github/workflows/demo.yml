@@ -1,0 +1,24 @@
+name: Build demo
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: 0 */1 * * *
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: add-demo
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.6.0
+        
+      - run: npm install
+      
+      - run: ./node_modules/.bin/esbuild index.ts --bundle --outfile=public/build/bundle.js
+      
+      - run: ./build/clone.sh
+      
+      - run: cp index.html public
