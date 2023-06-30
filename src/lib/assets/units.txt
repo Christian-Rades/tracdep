@@ -1,4 +1,4 @@
-known units: 5519
+known units: 5524
 Shopware\Core\System\Locale\LocaleEvents
 Shopware\Core\System\Locale\LocaleDefinition
 Shopware\Core\System\Locale\LanguageLocaleCodeProvider
@@ -601,6 +601,10 @@ Shopware\Core\Installer\Requirements\RequirementsValidatorInterface
 Shopware\Core\Installer\Requirements\IniConfigReader
 Shopware\Core\Installer\Requirements\EnvironmentRequirementsValidator
 Shopware\Core\PlatformRequest
+Shopware\Core\DataImport\ImportContext
+Shopware\Core\DataImport\ImportFacade
+Shopware\Core\DataImport\ImportBatch
+Shopware\Core\DataImport\DataImporter
 Shopware\Core\HttpKernel
 Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand
 Shopware\Core\DevOps\System\Command\SystemDumpDatabaseCommand
@@ -900,6 +904,7 @@ Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage
 Shopware\Core\Content\Media\Message\DeleteFileMessage
 Shopware\Core\Content\Media\Message\DeleteFileHandler
 Shopware\Core\Content\Media\DeleteNotUsedMediaService
+Shopware\Core\Content\Media\MediaException
 Shopware\Core\Content\Media\Pathname\UrlGenerator
 Shopware\Core\Content\Media\Pathname\PathnameStrategy\PlainPathnameStrategy
 Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface
@@ -2773,6 +2778,7 @@ Shopware\Core\Checkout\Cart\Price\Struct\ListPrice
 Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition
 Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice
 Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition
+Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface
 Shopware\Core\Checkout\Cart\Price\Struct\CartPrice
 Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice
 Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice
@@ -3600,7 +3606,6 @@ Shopware\Core\Framework\App\Hmac\RequestSigner
 Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware
 Shopware\Core\Framework\App\Lifecycle\ScriptFileReader
 Shopware\Core\Framework\App\Lifecycle\AppLifecycle
-Shopware\Core\Framework\App\Lifecycle\ScriptFileReaderInterface
 Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister
 Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister
 Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister

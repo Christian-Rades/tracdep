@@ -1,9 +1,12 @@
 import Graph from "graphology";
+import unitsTxt from '$lib/assets/units.txt';
+import deps from '$lib/assets/dependencies.txt';
 
 function loadUnits(): Graph {
     const xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", "/units.txt", false );
+    xmlHttp.open( "GET", unitsTxt, false );
     xmlHttp.send( null );
+    
 
     const graph = new Graph();
     for (const fqn of xmlHttp.responseText.split("\n").slice(1)) {
@@ -36,7 +39,7 @@ function loadUnits(): Graph {
 
 function loadEdges(graph: Graph): void {
     const xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", "/dependencies.csv", false );
+    xmlHttp.open( "GET", deps, false );
     xmlHttp.send( null );
     const data = xmlHttp.responseText;
 
