@@ -1,28 +1,56 @@
-name: Build demo
-on: 
+name: Deploy to GitHub Pages
+
+on:
   workflow_dispatch:
-  schedule:
-    - cron: 0 */1 * * *
+  push:
+    branches: 'demo'
 
 jobs:
-  create-pull-request:
+  build_site:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3.6.0
-        
-      - run: npm install
-      
-      - run: ./node_modules/.bin/esbuild index.ts --bundle --outfile=public/build/bundle.js
-      
-      - run: ./clone.sh
-      
-      - run: cp index.html public
-      
-      - run: rm -rf platform
-      
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
         with:
-          branch: demo
+          version: 8
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: build
+        env:
+          BASE_PATH: '/tracdep'
+        run: |
+          pnpm run build
+          touch build/.nojekyll
+
+      - name: Upload Artifacts
+        uses: actions/upload-pages-artifact@v1
+        with:
+          # this should match the `pages` option in your adapter-static options
+          path: 'build/'
+
+  deploy:
+    needs: build_site
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v1
