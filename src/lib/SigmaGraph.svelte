@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, createEventDispatcher } from 'svelte';
     import Sigma from 'sigma';
     import type { UnitGraph } from './input';
     import type Palette from "iwanthue/palette";
@@ -12,6 +12,7 @@
 
     let container: HTMLDivElement;
     let renderer: Sigma|undefined;
+    const dispatch = createEventDispatcher();
 
     $: {
         renderState = renderState;
@@ -27,23 +28,29 @@
         renderer.on("clickNode", ({ node }) => {
             renderState.selectedNode = node;
             selectedNeighbors = new Set(graph.graph.neighbors(node));
+            dispatch('clickedNode', node);
         });
         renderer.on("clickStage", () =>{
             renderState.selectedNode = undefined
             selectedNeighbors = undefined;
+            dispatch('clickedstage');
         });
 
         renderer.setSetting("nodeReducer", (node, data) => {
             const res: Partial<NodeDisplayData> = { ...data };
             const pkg = graph.graph.getNodeAttribute(node, 'package');
+            const name = graph.graph.getNodeAttribute(node, 'name');
             if (renderState.selectedPackage === undefined || pkg == renderState.selectedPackage) {
                 res.color = palette.get(pkg);
+                res.label = name;
             } else {
                 res.color = palette.defaultColor;
+                res.label = "";
             }
 
             if (renderState.selectedNode && !(node === renderState.selectedNode || selectedNeighbors?.has(node))) {
                 res.color = palette.defaultColor;
+                res.label = "";
             }
 
             return res;

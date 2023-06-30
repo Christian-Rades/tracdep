@@ -6,9 +6,12 @@
 	import type { Attributes } from 'graphology-types';
 	import Palette from 'iwanthue/palette';
     import type { RenderState } from "../lib/graphRenderState";
+	import NodeDetails from '$lib/NodeDetails.svelte';
 
     const uGraph = newUnitGraph();
     const graph = uGraph.graph;
+
+    let selectedNode = "";
 
     let phase = 0;
 
@@ -52,27 +55,34 @@
     function setSelectedPackage(pkg: string) {
         renderState.selectedPackage = pkg;
     }
+    function setSelection(node: string){
+        selectedNode = node;
+    }
+    function unsetSelection(){
+        selectedNode = "";
+    }
 </script>
 
-<div style="display: grid; height: 100%; grid-template-columns: 70% 1fr;">
-    <SigmaGraph graph={uGraph} palette={palette} renderState={renderState}/>
-    <div style="display: grid; grid-template-rows: 1fr 60px 3fr;">
-        <div id="legend" style="display: grid; grid-template-columns: 1fr 1fr;">
-            <button on:click={resetSelectedPackage} style="background-color: {palette.defaultColor};">
+<div class="flex flex-row">
+    <div class="basis-3/4 flex-grow h-screen">
+        <SigmaGraph on:clickedNode={(ev) => setSelection(ev.detail)} on:clickedStage={unsetSelection} graph={uGraph} palette={palette} renderState={renderState}/>
+    </div>
+    <div style="pl-4 basis-1/4 flex-none">
+        <span class="col-span-2">Package colors</span>
+        <div id="legend" class="grid grid-cols-2 gap-1">
+            <button class="p-1 rounded" on:click={resetSelectedPackage} style="background-color: {palette.defaultColor};">
                 reset
             </button>
             {#each packageNames as pkg}
-                <button on:click={() => setSelectedPackage(pkg)} style="background-color: {palette.get(pkg)};">
-                {pkg}
+                <button class="p-1 rounded" on:click={() => setSelectedPackage(pkg)} style="background-color: {palette.get(pkg)};">
+                    {pkg}
                 </button>
             {/each}
+            <span class="col-span-2">Layouting controls</span>
+            <button class="p-1 rounded bg-accept" on:click={start}>Start</button>
+            <button class="p-1 rounded bg-delete" on:click={stop}>Stop</button>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr;">
-            <button on:click={start} style="height: 100%">Start layouting</button>
-            <button on:click={stop} style="height: 100%">Stop layouting</button>
-        </div>
-        <textarea id="output" style="width: 100%; height: 100%;">
-        </textarea>
+        <NodeDetails graph={uGraph} selectedNode={selectedNode}/>
     </div>
 </div>
 
